@@ -1,2 +1,2 @@
 # Tests
-Tests and experiments im trying
+Stuff im currently testing 
