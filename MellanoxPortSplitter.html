@@ -1,214 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mellanox Port Splitter</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-        }
-        h1 {
-            color: #333;
-            margin: 20px 0;
-        }
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex-grow: 1;
-       }
-        .port-container {
-            display: grid;
-            grid-template-columns: repeat(8, 100px);
-            grid-gap: 15px;
-            margin-bottom: 20px;
-        }
-        .port {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 100px;
-            height: 100px;
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            cursor: pointer;
-            text-align: center;
-            user-select: none;
-            transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
-        }
-        .port:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-        }
-        .dropdown {
-            display: none;
-            position: absolute;
-            background-color: rgba(255, 255, 255, 0.9);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-            border-radius: 5px;
-            overflow: hidden;
-            z-index: 1;
-        }
-        .dropdown a {
-            color: #333;
-            padding: 10px 15px;
-            text-decoration: none;
-            display: block;
-            transition: background-color 0.2s;
-        }
-        .dropdown a:hover {
-            background-color: #f0f0f0;
-        }
-        button {
-            background-color: #007bff;
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        #output{
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 15px;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            max-height: 600px;
-            overflow-y: auto;
-            transition: background-color 0.2s;
-			display: none
-        }
-		pre {
-			padding: 15px;
-			border-radius: 10px;
-			color: #f5d67b;
-			font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
-			background: #1b1b1b;
-			
-		}
-        footer {
-            width: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: #fff;
-            text-align: center;
-            padding: 10px 0;
-            border-top: 5px solid #007bff;
-            position: fixed;
-            bottom: 0;
-       }
-    </style>
-</head>
-<body>
-    <h1>Mellanox Port Splitter</h1>
-    <div class="port-container" id="ports">
-        <div class="port" data-port="1">1</div>
-        <div class="port" data-port="3">3</div>
-        <div class="port" data-port="5">5</div>
-        <div class="port" data-port="7">7</div>
-        <div class="port" data-port="9">9</div>
-        <div class="port" data-port="11">11</div>
-        <div class="port" data-port="13">13</div>
-        <div class="port" data-port="15">15</div>
-        <div class="port" data-port="2">2</div>
-        <div class="port" data-port="4">4</div>
-        <div class="port" data-port="6">6</div>
-        <div class="port" data-port="8">8</div>
-        <div class="port" data-port="10">10</div>
-        <div class="port" data-port="12">12</div>
-        <div class="port" data-port="14">14</div>
-        <div class="port" data-port="16">16</div>
-    </div>
-    <button onclick="generateCommands()">Generate Commands</button>
-    <div id="output">
-		<h3>Output:</h3>
-		Paste this in SSH client
-		<pre id="commands"></pre>
-	</div>
-	<footer>Test by Arash</footer>
-    <script>
-        document.querySelectorAll('.port').forEach(port => {
-            port.addEventListener('click', function() {
-                const dropdown = document.createElement('div');
-                dropdown.classList.add('dropdown');
-                dropdown.innerHTML = `
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Mellanox Port Splitter</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f9;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+            }
+            h1 {
+                color: #333;
+                margin: 20px 0;
+            }
+            .main-content {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                flex-grow: 1;
+            }
+            .port-container {
+                display: grid;
+                grid-template-columns: repeat(8, 100px);
+                grid-gap: 15px;
+                margin-bottom: 20px;
+            }
+            .port {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 100px;
+                height: 100px;
+                background-color: rgba(255, 255, 255, 0.8);
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                cursor: pointer;
+                text-align: center;
+                user-select: none;
+                transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+            }
+            .port:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            }
+            .dropdown {
+                display: none;
+                position: absolute;
+                background-color: rgba(255, 255, 255, 0.9);
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+                border-radius: 5px;
+                overflow: hidden;
+                z-index: 1;
+            }
+            .dropdown a {
+                color: #333;
+                padding: 10px 15px;
+                text-decoration: none;
+                display: block;
+                transition: background-color 0.2s;
+            }
+            .dropdown a:hover {
+                background-color: #f0f0f0;
+            }
+            button {
+                background-color: #007bff;
+                color: #fff;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: background-color 0.2s;
+            }
+            button:hover {
+                background-color: #0056b3;
+            }
+            #output {
+                background-color: rgba(255, 255, 255, 0.8);
+                padding: 15px;
+                border-radius: 5px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                max-height: 600px;
+                overflow-y: auto;
+                transition: background-color 0.2s;
+                display: none;
+            }
+            pre {
+                padding: 15px;
+                border-radius: 10px;
+                color: #f5d67b;
+                font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+                background: #1b1b1b;
+            }
+            footer {
+                width: 100%;
+                background-color: rgba(0, 0, 0, 0.7);
+                color: #fff;
+                text-align: center;
+                padding: 10px 0;
+                border-top: 5px solid #007bff;
+                position: fixed;
+                bottom: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Mellanox Port Splitter</h1>
+        <div class="port-container" id="ports">
+            <div class="port" data-port="1">1</div>
+            <div class="port" data-port="3">3</div>
+            <div class="port" data-port="5">5</div>
+            <div class="port" data-port="7">7</div>
+            <div class="port" data-port="9">9</div>
+            <div class="port" data-port="11">11</div>
+            <div class="port" data-port="13">13</div>
+            <div class="port" data-port="15">15</div>
+            <div class="port" data-port="2">2</div>
+            <div class="port" data-port="4">4</div>
+            <div class="port" data-port="6">6</div>
+            <div class="port" data-port="8">8</div>
+            <div class="port" data-port="10">10</div>
+            <div class="port" data-port="12">12</div>
+            <div class="port" data-port="14">14</div>
+            <div class="port" data-port="16">16</div>
+        </div>
+        <button onclick="generateCommands()">Generate Commands</button>
+        <div id="output">
+            <h3>Output:</h3>
+            Paste this in SSH client
+            <pre id="commands"></pre>
+        </div>
+        <footer>Test by Arash</footer>
+        <script>
+            document.querySelectorAll(".port").forEach((port) => {
+                port.addEventListener("click", function () {
+                    const dropdown = document.createElement("div");
+                    dropdown.classList.add("dropdown");
+                    dropdown.innerHTML = `
                     <a href="#" data-action="Split">Split</a>
                     <a href="#" data-action="Unsplit">Unsplit</a>
 					<a href="#" data-action="">Reset</a>
                 `;
-                port.appendChild(dropdown);
-                dropdown.style.display = 'block';
+                    port.appendChild(dropdown);
+                    dropdown.style.display = "block";
 
-                dropdown.querySelectorAll('a').forEach(action => {
-                    action.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const selectedAction = e.target.getAttribute('data-action');
-                        port.setAttribute('data-action', selectedAction);
-                        port.innerHTML = `${port.getAttribute('data-port')}<br>${selectedAction}`;
-                        port.removeChild(dropdown);
+                    dropdown.querySelectorAll("a").forEach((action) => {
+                        action.addEventListener("click", function (e) {
+                            e.preventDefault();
+                            const selectedAction = e.target.getAttribute("data-action");
+                            port.setAttribute("data-action", selectedAction);
+                            port.innerHTML = `${port.getAttribute("data-port")}<br>${selectedAction}`;
+                            port.removeChild(dropdown);
+                        });
+                    });
+
+                    document.addEventListener("click", function closeDropdown(e) {
+                        if (!port.contains(e.target)) {
+                            dropdown.remove();
+                            document.removeEventListener("click", closeDropdown);
+                        }
                     });
                 });
+            });
 
-                document.addEventListener('click', function closeDropdown(e) {
-                    if (!port.contains(e.target)) {
-                        dropdown.remove();
-                        document.removeEventListener('click', closeDropdown);
+            function generateCommands() {
+                const commands = ["enable", "configure terminal"];
+                let changesMade = false;
+
+                document.querySelectorAll(".port").forEach((port) => {
+                    const portNumber = port.getAttribute("data-port");
+                    const action = port.getAttribute("data-action");
+
+                    if (action) {
+                        changesMade = true;
+                        if (action === "Split") {
+                            commands.push(`interface ethernet 1/${portNumber} shutdown`, 
+					  `interface ethernet 1/${portNumber} module-type qsfp-split-4 force`
+					 );
+                        } else if (action === "Unsplit") {
+                            commands.push(
+                                `interface ethernet 1/${portNumber}/1 shutdown`,
+                                `interface ethernet 1/${portNumber}/2 shutdown`,
+                                `interface ethernet 1/${portNumber}/3 shutdown`,
+                                `interface ethernet 1/${portNumber}/4 shutdown`,
+                                `interface ethernet 1/${portNumber}/1 no module-type force`
+                            );
+                        }
                     }
                 });
-            });
-        });
-
-        function generateCommands() {
-            const commands = ["enable", "configure terminal"];
-            let changesMade = false;
-
-            document.querySelectorAll('.port').forEach(port => {
-                const portNumber = port.getAttribute('data-port');
-                const action = port.getAttribute('data-action');
-                
-                if (action) {
-                    changesMade = true;
-                    if (action === 'Split') {
-                        commands.push(
-                            `interface ethernet 1/${portNumber} shutdown`,
-                            `interface ethernet 1/${portNumber} module-type qsfp-split-4 force`
-                        );
-                    } else if (action === 'Unsplit') {
-                        commands.push(
-                            `interface ethernet 1/${portNumber}/1 shutdown`,
-                            `interface ethernet 1/${portNumber}/2 shutdown`,
-                            `interface ethernet 1/${portNumber}/3 shutdown`,
-                            `interface ethernet 1/${portNumber}/4 shutdown`,
-                            `interface ethernet 1/${portNumber}/1 no module-type force`
-                        );
-                    }
                 commands.push(`configuration write`);
-		}
-            });
-
-            if (!changesMade) {
-                alert("No changes made.");
-                document.getElementById('commands').textContent = '';
-				document.getElementById('output').style.display = 'none'; 
-            } else {
-                document.getElementById('commands').textContent = commands.join('\n');
-				document.getElementById('output').style.display = 'block'; 
+                if (!changesMade) {
+                    alert("No changes made.");
+                    document.getElementById("commands").textContent = "";
+                    document.getElementById("output").style.display = "none";
+                } else {
+                    document.getElementById("commands").textContent = commands.join("\n");
+                    document.getElementById("output").style.display = "block";
+                }
             }
-        }
-    </script>
-</body>
+        </script>
+    </body>
 </html>
