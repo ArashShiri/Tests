@@ -83,19 +83,27 @@
         button:hover {
             background-color: #0056b3;
         }
-        pre {
+        #output{
             background-color: rgba(255, 255, 255, 0.8);
             padding: 15px;
             border-radius: 5px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            max-height: 200px;
+            max-height: 600px;
             overflow-y: auto;
             transition: background-color 0.2s;
 			display: none
         }
+		pre {
+			padding: 15px;
+			border-radius: 10px;
+			color: #f5d67b;
+			font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+			background: #1b1b1b;
+			
+		}
         footer {
             width: 100%;
-            background-color: #333;
+            background-color: rgba(0, 0, 0, 0.7);
             color: #fff;
             text-align: center;
             padding: 10px 0;
@@ -126,7 +134,11 @@
         <div class="port" data-port="16">16</div>
     </div>
     <button onclick="generateCommands()">Generate Commands</button>
-    <pre id="commands"></pre>
+    <div id="output">
+		<h3>Output:</h3>
+		Paste this in SSH client
+		<pre id="commands"></pre>
+	</div>
 	<footer>Test by Arash</footer>
     <script>
         document.querySelectorAll('.port').forEach(port => {
@@ -190,10 +202,10 @@
             if (!changesMade) {
                 alert("No changes made.");
                 document.getElementById('commands').textContent = '';
-				document.getElementById('commands').style.display = 'none'; 
+				document.getElementById('output').style.display = 'none'; 
             } else {
                 document.getElementById('commands').textContent = commands.join('\n');
-				document.getElementById('commands').style.display = 'block'; 
+				document.getElementById('output').style.display = 'block'; 
             }
         }
     </script>
