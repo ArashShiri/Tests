@@ -196,7 +196,8 @@
                             `interface ethernet 1/${portNumber}/1 no module-type force`
                         );
                     }
-                }
+                commands.push(`configuration write`);
+		}
             });
 
             if (!changesMade) {
