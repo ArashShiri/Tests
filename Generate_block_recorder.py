@@ -17,7 +17,7 @@ def create_xml(trackname, filename, tc_start, tc_end):
     
     # Generate GUID for ID
     block_id = ET.SubElement(block, "id")
-    block_id.text = f"GUID-{uuid.uuid4()}"
+    block_id.text = f"{uuid.uuid4()}"
 
     # tcRange
     tc_range = ET.SubElement(block, "tcRange")
