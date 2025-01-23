@@ -14,14 +14,27 @@ Under the following terms:
 
 Usage Instructions:
 -------------------
-1. To generate an XML file from a CSV file:
-   python script.py <path_to_csv_file>
 
-2. To specify an output XML file:
-   python script.py <path_to_csv_file> -x <path_to_output_xml>
+Step 1: Prepare your CSV file
+- Use the optional template: https://docs.google.com/spreadsheets/d/1dOEYUPY9M-j34zDl2i7qIqhwWhv-QaYcAaqZ8ShalG4/edit?usp=sharing
+- Fill in your data following the template format
+- Go to File > Download > CSV to save your filled template
+- Make sure all required columns are present: Trackname, Filename, TC start, TC end
+- Time codes should be in format HH:MM:SS:FF (hours:minutes:seconds:frames)
 
-3. If the specified output XML file does not exist or has a mismatched root tag:
-   - A new XML file will be created with a default name 'output-<datetime>.xml'.
+Step 2: Run the script
+Option A) Basic usage:
+    python script.py your_filled_template.csv
+
+Option B) Specify custom output location:
+    python script.py your_filled_template.csv -x custom_output.xml
+
+Notes:
+- If output XML exists, blocks will be updated
+- If output XML doesn't exist, new file will be created
+- Invalid XML files will trigger creation of new file named 'output-<datetime>.xml'
+
+
 
 Dependencies:
 -------------
