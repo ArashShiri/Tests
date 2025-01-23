@@ -1,4 +1,17 @@
 """
+Copyright (C) Arash Shiri 2024 - 2025
+This work is licensed under Creative Commons Attribution-ShareAlike 4.0 International
+https://creativecommons.org/licenses/by-sa/4.0/
+
+You are free to:
+- Share: copy and redistribute the material in any medium or format
+- Adapt: remix, transform, and build upon the material
+
+Under the following terms:
+- Attribution: You must give appropriate credit
+- ShareAlike: If you remix, transform, or build upon the material, you must distribute 
+             your contributions under the same license as the original
+
 Usage Instructions:
 -------------------
 1. To generate an XML file from a CSV file:
