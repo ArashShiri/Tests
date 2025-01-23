@@ -5,15 +5,13 @@ import argparse
 import os
 
 def create_xml(trackname, filename, tc_start, tc_end):
-    def calculate_absolute_time(tc):
-        parts = list(map(int, tc.split(":")))  # Split TC into hour, minute, second, frame
-        return parts[0] * 3600 + parts[1] * 60 + parts[2]
+    def timecode_to_absolute(tc):
+        parts = list(map(int, tc.split(":")))  # Split TC into hours, minutes, seconds, frames
+        hours, minutes, seconds = parts[:3]  # Ignore frames for now
+        return hours * 3600 + minutes * 60 + seconds
 
     tc_start_parts = tc_start.split(":")  # Split TC start into hour, minute, second, frame
     tc_end_parts = tc_end.split(":")      # Split TC end into hour, minute, second, frame
-
-    start_absolute = calculate_absolute_time(tc_start)
-    end_absolute = calculate_absolute_time(tc_end)
 
     block = ET.Element("Block")
     
@@ -28,13 +26,13 @@ def create_xml(trackname, filename, tc_start, tc_end):
     ET.SubElement(tc_range, "startHour").text = tc_start_parts[0]
     ET.SubElement(tc_range, "startMinute").text = tc_start_parts[1]
     ET.SubElement(tc_range, "startSecond").text = tc_start_parts[2]
-    ET.SubElement(tc_range, "startAbsolute").text = str(start_absolute)
+    ET.SubElement(tc_range, "startAbsolute").text = str(timecode_to_absolute(tc_start))
 
     # End time components
     ET.SubElement(tc_range, "endHour").text = tc_end_parts[0]
     ET.SubElement(tc_range, "endMinute").text = tc_end_parts[1]
     ET.SubElement(tc_range, "endSecond").text = tc_end_parts[2]
-    ET.SubElement(tc_range, "endAbsolute").text = str(end_absolute)
+    ET.SubElement(tc_range, "endAbsolute").text = str(timecode_to_absolute(tc_end))
 
     # Additional elements
     ET.SubElement(block, "initialized").text = "true"
