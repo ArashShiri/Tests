@@ -1,8 +1,26 @@
+"""
+Usage Instructions:
+-------------------
+1. To generate an XML file from a CSV file:
+   python script.py <path_to_csv_file>
+
+2. To specify an output XML file:
+   python script.py <path_to_csv_file> -x <path_to_output_xml>
+
+3. If the specified output XML file does not exist or has a mismatched root tag:
+   - A new XML file will be created with a default name 'output-<datetime>.xml'.
+
+Dependencies:
+-------------
+Ensure the CSV file has the following columns: Trackname, Filename, TC start, TC end.
+"""
+
 import csv
 import xml.etree.ElementTree as ET
 import uuid
 import argparse
 import os
+from datetime import datetime
 
 def create_xml(trackname, filename, tc_start, tc_end):
     def timecode_to_absolute(tc):
@@ -49,6 +67,10 @@ def generate_xml_from_csv(csv_file, output_file):
     with open(csv_file, mode="r", encoding="utf-8") as file:
         reader = csv.DictReader(file)
 
+        # Initialize root and blocks
+        root = None
+        blocks = None
+
         # Check if the output XML file exists
         if os.path.exists(output_file):
             tree = ET.parse(output_file)
@@ -56,9 +78,9 @@ def generate_xml_from_csv(csv_file, output_file):
 
             # Ensure root is named "ProjectData"
             if root.tag != "ProjectData":
-                raise ValueError("The root element of the XML file must be <ProjectData>.")
-
-            # Find or create <blocks> tag
+                print(f"Warning: The root tag of '{output_file}' is invalid. A new XML file will be created.")
+                output_file = f"output-{datetime.now().strftime('%Y%m%d-%H%M%S')}.xml"
+                root = ET.Element("ProjectData")
             blocks = root.find("blocks")
             if blocks is None:
                 blocks = ET.SubElement(root, "blocks")
@@ -87,6 +109,7 @@ def generate_xml_from_csv(csv_file, output_file):
         tree = ET.ElementTree(root)
         indent_xml(root)
         tree.write(output_file, encoding="utf-8", xml_declaration=True)
+        print(f"XML file generated or updated: {output_file}")
 
 
 def indent_xml(elem, level=0):
@@ -124,6 +147,5 @@ if __name__ == "__main__":
     # Generate XML
     try:
         generate_xml_from_csv(csv_file=args.csv_file, output_file=args.xml)
-        print(f"XML file generated or updated: {args.xml}")
     except ValueError as e:
         print(f"Error: {e}")
