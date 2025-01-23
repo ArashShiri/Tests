@@ -49,8 +49,27 @@ def generate_xml_from_csv(csv_file, output_file):
     with open(csv_file, mode="r", encoding="utf-8") as file:
         reader = csv.DictReader(file)
 
-        # Create XML root
-        root = ET.Element("Root")
+        # Check if the output XML file exists
+        if os.path.exists(output_file):
+            tree = ET.parse(output_file)
+            root = tree.getroot()
+
+            # Ensure root is named "ProjectData"
+            if root.tag != "ProjectData":
+                raise ValueError("The root element of the XML file must be <ProjectData>.")
+
+            # Find or create <blocks> tag
+            blocks = root.find("blocks")
+            if blocks is None:
+                blocks = ET.SubElement(root, "blocks")
+            else:
+                # Remove existing <Block> elements
+                for block in blocks.findall("Block"):
+                    blocks.remove(block)
+        else:
+            # Create new root and <blocks> tag
+            root = ET.Element("ProjectData")
+            blocks = ET.SubElement(root, "blocks")
 
         # Iterate over rows and create XML blocks
         for row in reader:
@@ -62,7 +81,7 @@ def generate_xml_from_csv(csv_file, output_file):
             # Ignore rows where essential fields are missing
             if trackname and filename and tc_start and tc_end:
                 block = create_xml(trackname, filename, tc_start, tc_end)
-                root.append(block)
+                blocks.append(block)
 
         # Write XML to file with pretty formatting
         tree = ET.ElementTree(root)
@@ -91,9 +110,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate XML from a CSV file.")
     parser.add_argument("csv_file", help="Path to the input CSV file.")
     parser.add_argument(
-        "-o", "--output",
+        "-x", "--xml",
         default="output.xml",
-        help="Path to the output XML file (default: output.xml)."
+        help="Path to the input/output XML file (default: output.xml)."
     )
     args = parser.parse_args()
 
@@ -103,5 +122,8 @@ if __name__ == "__main__":
         exit(1)
 
     # Generate XML
-    generate_xml_from_csv(csv_file=args.csv_file, output_file=args.output)
-    print(f"XML file generated: {args.output}")
+    try:
+        generate_xml_from_csv(csv_file=args.csv_file, output_file=args.xml)
+        print(f"XML file generated or updated: {args.xml}")
+    except ValueError as e:
+        print(f"Error: {e}")
