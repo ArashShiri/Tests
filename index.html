@@ -6,16 +6,18 @@
     <title>My GitHub Projects</title>
     <style>
         :root {
-            --primary-color: #3498db;
-            --primary-dark: #2980b9;
-            --text-color: #333;
-            --bg-color: #f5f7fa;
-            --card-bg: #fff;
-            --header-bg: #2c3e50;
+            --primary-color: #007bff; /* Updated primary color */
+            --primary-dark: #0056b3;
+            --text-color: #343a40; /* Darker text */
+            --text-muted: #6c757d; /* Muted text for lists/secondary info */
+            --bg-color: #f8f9fa; /* Lighter background */
+            --card-bg: #ffffff;
+            --header-bg: #343a40; /* Darker header */
+            --border-color: #dee2e6; /* Subtle border color */
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* System font stack */
             margin: 0;
             padding: 0;
             background-color: var(--bg-color);
@@ -26,101 +28,128 @@
         header {
             background-color: var(--header-bg);
             color: #fff;
-            padding: 2em 0;
+            padding: 2.5em 0; /* Increased padding */
             text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-bottom: 3px solid var(--primary-color); /* Added border accent */
         }
 
         header h1 {
             margin: 0;
-            font-size: 2.5rem;
+            font-size: 2.8rem; /* Slightly larger */
+            font-weight: 600; /* Bolder */
         }
 
         header p {
-            margin: 1em 0 0;
-            font-size: 1.1rem;
-            opacity: 0.9;
+            margin: 0.8em 0 0;
+            font-size: 1.15rem;
+            opacity: 0.85;
         }
 
         .container {
-            width: 85%;
-            max-width: 1200px;
-            margin: 3em auto;
+            width: 90%; /* Slightly wider */
+            max-width: 1140px; /* Standard max-width */
+            margin: 3.5em auto; /* Increased vertical margin */
             overflow: hidden;
         }
 
         .projects-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 2em;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); /* Slightly larger minmax */
+            gap: 2.5em; /* Increased gap */
         }
 
         .project {
             background-color: var(--card-bg);
             border-radius: 8px;
-            padding: 1.8em;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
+            padding: 2em; /* Increased padding */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05); /* Softer shadow */
+            border: 1px solid var(--border-color); /* Subtle border */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex; /* Use flexbox for better alignment */
+            flex-direction: column; /* Stack content vertically */
         }
 
         .project:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.08); /* Enhanced hover shadow */
         }
 
         .project h3 {
             margin-top: 0;
-            color: #2c3e50;
-            font-size: 1.4rem;
+            margin-bottom: 0.8em; /* Adjusted margin */
+            color: var(--header-bg); /* Match header color */
+            font-size: 1.5rem; /* Slightly larger */
+            font-weight: 600;
             border-bottom: 2px solid var(--primary-color);
-            padding-bottom: 0.7em;
+            padding-bottom: 0.6em;
         }
 
         .project p {
-            color: #555;
+            color: var(--text-color); /* Use main text color */
             line-height: 1.7;
-            margin-bottom: 0.5em;
+            margin-bottom: 0.8em; /* Adjusted margin */
+            flex-grow: 1; /* Allow description to grow */
         }
 
         .project ul {
             padding-left: 1.5em;
-            margin-bottom: 1.5em;
+            margin-bottom: 1.8em; /* Increased margin */
+            color: var(--text-muted); /* Muted color for list items */
+            flex-grow: 1; /* Allow list to grow */
         }
 
         .project li {
-            margin-bottom: 0.5em;
-            color: #555;
+            margin-bottom: 0.6em; /* Adjusted spacing */
         }
 
         .project a {
             display: inline-block;
             background-color: var(--primary-color);
             color: #fff;
-            padding: 0.7em 1.4em;
+            padding: 0.8em 1.6em; /* Adjusted padding */
             text-decoration: none;
-            border-radius: 6px;
+            border-radius: 5px; /* Slightly less rounded */
             font-weight: 500;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: background-color 0.2s ease, transform 0.2s ease;
+            text-align: center; /* Center text in button */
+            margin-top: auto; /* Push button to bottom */
         }
 
         .project a:hover {
             background-color: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2em 0;
+            margin-top: 4em;
+            background-color: #e9ecef; /* Light footer background */
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
         }
 
         @media (max-width: 768px) {
             .container {
-                width: 90%;
+                width: 95%; /* More width on smaller screens */
+                margin: 2.5em auto;
             }
-            
+
             .projects-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr; /* Stack cards */
+                gap: 2em;
             }
-            
+
             header h1 {
-                font-size: 2rem;
+                font-size: 2.2rem;
+            }
+
+            header p {
+                font-size: 1.05rem;
+            }
+
+            .project {
+                padding: 1.5em;
             }
         }
     </style>
@@ -130,7 +159,7 @@
         <h1>My GitHub Projects</h1>
         <p>Welcome to my project showcase!</p>
     </header>
-    
+
     <div class="container">
         <div class="projects-grid">
             <div class="project">
@@ -144,7 +173,7 @@
                 </ul>
                 <a href="https://arashshiri.github.io/Tests/MellanoxPortSplitter.html">View Project</a>
             </div>
-            
+
             <div class="project">
                 <h3>Block Recorder Generator</h3>
                 <p>A Python script that automatically generates project structures for rehearsal recording.</p>
@@ -156,7 +185,7 @@
                 </ul>
                 <a href="https://github.com/ArashShiri/Tests/blob/main/Generate_block_recorder.py">View on GitHub</a>
             </div>
-            
+
             <div class="project">
                 <h3>Network Ping Utility</h3>
                 <p>A specialized ping utility initially developed for testing @disguise_one IP-VFC streams.</p>
@@ -168,7 +197,12 @@
                 </ul>
                 <a href="#">View on GitHub</a>
             </div>
+            <!-- Add more projects here -->
         </div>
     </div>
+
+    <footer>
+        &copy; 2025 Arash Shiri. All rights reserved. <!-- Update year/name as needed -->
+    </footer>
 </body>
 </html>
