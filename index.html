@@ -1,1 +1,146 @@
-TEST 1
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My GitHub Projects</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --primary-dark: #2980b9;
+            --text-color: #333;
+            --bg-color: #f5f7fa;
+            --card-bg: #fff;
+            --header-bg: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--header-bg);
+            color: #fff;
+            padding: 2em 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+
+        header p {
+            margin: 1em 0 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            width: 85%;
+            max-width: 1200px;
+            margin: 3em auto;
+            overflow: hidden;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2em;
+        }
+
+        .project {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 1.8em;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .project:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .project h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 1.4rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.7em;
+        }
+
+        .project p {
+            color: #555;
+            line-height: 1.7;
+            margin-bottom: 1.5em;
+        }
+
+        .project a {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 0.7em 1.4em;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .project a:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 90%;
+            }
+            
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>My GitHub Projects</h1>
+        <p>Welcome to my project showcase!</p>
+    </header>
+    
+    <div class="container">
+        <div class="projects-grid">
+            <div class="project">
+                <h3>Mellanox Onyx Port Splitter</h3>
+                <p>An interactive web tool for configuring Mellanox Onyx network switches. This utility simplifies the complex process of port splitting by generating ready-to-use configuration commands through a user-friendly interface.<br />It helps network administrators avoid common configuration errors and speeds up deployment workflows.</p>
+                <a href="https://arashshiri.github.io/Tests/MellanoxPortSplitter.html" >View Project</a>
+            </div>
+            
+            <div class="project">
+                <h3>Block Recorder Generator</h3>
+                <p>A Python script that automatically generates project structures for rehearsal recording. <br />The tool creates standardized file hierarchies and configuration templates, reducing setup time for recording sessions. By automating this process, the script eliminates human error and ensures consistent project organization across multiple recordings.</p>
+                <a href="https://github.com/ArashShiri/Tests/blob/main/Generate_block_recorder.py" >View on GitHub</a>
+            </div>
+            
+            <div class="project">
+                <h3>Network Ping Utility</h3>
+                <p>A specialized ping utility initially developed for testing @disguise_one IP-VFC streams, but expanded to support general network diagnostics. <br />This tool provides enhanced ping functionality with customizable parameters, detailed latency reporting, and visualization options to help identify and troubleshoot network connectivity issues.</p>
+                <a href="#" >View on GitHub</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
