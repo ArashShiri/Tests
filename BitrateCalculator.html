@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Format Bitrate Calculator</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --primary-dark: #0056b3;
+            --text-color: #343a40;
+            --text-muted: #6c757d;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --header-bg: #343a40;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .header {
+            background-color: var(--header-bg);
+            color: #fff;
+            padding: 2em 0;
+            text-align: center;
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 600;
+        }
+
+        .header p {
+            margin: 0.5em 0 0 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2em;
+        }
+
+        .calculator-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 2em;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2em;
+        }
+
+        .form-group {
+            margin-bottom: 1.5em;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1em;
+            margin-bottom: 1.5em;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5em;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 0.75em;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+        }
+
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        .calculate-btn {
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 1em 2em;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            width: 100%;
+            margin-top: 1em;
+        }
+
+        .calculate-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        .results {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 2em;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--success-color);
+            display: none;
+        }
+
+        .results h3 {
+            margin-top: 0;
+            color: var(--success-color);
+            font-size: 1.5rem;
+        }
+
+        .result-item {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            padding: 0.75em 0;
+            border-bottom: 1px solid var(--border-color);
+            align-items: center;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .result-value {
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-align: right;
+        }
+
+        .format-info {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 2em;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .format-info h3 {
+            margin-top: 0;
+            color: var(--warning-color);
+            font-size: 1.3rem;
+        }
+
+        .format-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5em;
+            margin-top: 1em;
+        }
+
+        .format-card {
+            background-color: var(--bg-color);
+            padding: 1.5em;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .format-card h4 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .format-card ul {
+            margin: 0;
+            padding-left: 1.2em;
+        }
+
+        .format-card li {
+            margin-bottom: 0.3em;
+            color: var(--text-muted);
+        }
+
+        .warning-text {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 1em;
+            margin-top: 1em;
+            color: #856404;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1em;
+            }
+
+            .calculator-card, .results, .format-info {
+                padding: 1.5em;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Image Format Bitrate Calculator</h1>
+        <p>Calculate bitrates for EXR, TIFF, and DPX image formats</p>
+    </div>
+
+    <div class="container">
+        <div class="calculator-card">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="width">Width (pixels):</label>
+                    <input type="number" id="width" min="1" placeholder="e.g., 1920" value="1920">
+                </div>
+                <div class="form-group">
+                    <label for="height">Height (pixels):</label>
+                    <input type="number" id="height" min="1" placeholder="e.g., 1080" value="1080">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="format">Image Format:</label>
+                    <select id="format">
+                        <option value="exr">EXR (OpenEXR)</option>
+                        <option value="tiff">TIFF</option>
+                        <option value="dpx">DPX</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="bitDepth">Bit Depth:</label>
+                    <select id="bitDepth">
+                        <option value="16">16-bit</option>
+                        <option value="32">32-bit (Float)</option>
+                        <option value="8">8-bit</option>
+                        <option value="10">10-bit</option>
+                        <option value="12">12-bit</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="channels">Color Channels:</label>
+                    <select id="channels">
+                        <option value="3">RGB (3 channels)</option>
+                        <option value="4">RGBA (4 channels)</option>
+                        <option value="1">Grayscale (1 channel)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="compression">Compression:</label>
+                    <select id="compression">
+                        <option value="none">Uncompressed</option>
+                        <option value="zip">ZIP Compression (~50%)</option>
+                        <option value="piz">PIZ Compression (~60%)</option>
+                        <option value="lzw">LZW Compression (~40%)</option>
+                        <option value="rle">RLE Compression (~30%)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="calculate-btn" onclick="calculateBitrate()">Calculate Bitrate</button>
+        </div>
+
+        <div class="results" id="results">
+            <h3>Calculation Results</h3>
+            <div id="resultContent"></div>
+        </div>
+
+        <div class="format-info">
+            <h3>Format Information</h3>
+            <div class="format-grid">
+                <div class="format-card">
+                    <h4>EXR (OpenEXR)</h4>
+                    <ul>
+                        <li>Industry standard for VFX</li>
+                        <li>Supports HDR and floating-point</li>
+                        <li>Excellent compression ratios</li>
+                        <li>Supports multiple channels</li>
+                    </ul>
+                </div>
+                <div class="format-card">
+                    <h4>TIFF</h4>
+                    <ul>
+                        <li>Widely supported format</li>
+                        <li>Good for photography</li>
+                        <li>Variable compression options</li>
+                        <li>Cross-platform compatibility</li>
+                    </ul>
+                </div>
+                <div class="format-card">
+                    <h4>DPX</h4>
+                    <ul>
+                        <li>Digital cinema standard</li>
+                        <li>Film and broadcast industry</li>
+                        <li>Logarithmic color encoding</li>
+                        <li>Minimal compression</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="warning-text">
+                <strong>Note:</strong> Calculated bitrates are estimates. Actual file sizes may vary based on image content, 
+                compression efficiency, and metadata. For video sequences, multiply by frame rate to get bitrate per second.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function formatBits(bits) {
+            if (bits === 0) return '0 bits';
+            const k = 1000; // Using decimal for bits as per industry standard
+            const sizes = ['bits', 'Kbps', 'Mbps', 'Gbps'];
+            const i = Math.floor(Math.log(bits) / Math.log(k));
+            return parseFloat((bits / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function getCompressionRatio(compression) {
+            const ratios = {
+                'none': 1.0,
+                'zip': 0.5,
+                'piz': 0.4,
+                'lzw': 0.6,
+                'rle': 0.7
+            };
+            return ratios[compression] || 1.0;
+        }
+
+        function calculateBitrate() {
+            const width = parseInt(document.getElementById('width').value);
+            const height = parseInt(document.getElementById('height').value);
+            const format = document.getElementById('format').value;
+            const bitDepth = parseInt(document.getElementById('bitDepth').value);
+            const channels = parseInt(document.getElementById('channels').value);
+            const compression = document.getElementById('compression').value;
+
+            if (!width || !height || width < 1 || height < 1) {
+                alert('Please enter valid width and height values.');
+                return;
+            }
+
+            // Calculate base size
+            const totalPixels = width * height;
+            const bitsPerPixel = bitDepth * channels;
+            const uncompressedBits = totalPixels * bitsPerPixel;
+            const uncompressedBytes = uncompressedBits / 8;
+
+            // Apply compression
+            const compressionRatio = getCompressionRatio(compression);
+            const compressedBytes = uncompressedBytes * compressionRatio;
+            const compressedBits = compressedBytes * 8;
+
+            // Format-specific adjustments
+            let formatMultiplier = 1.0;
+            let formatNotes = '';
+
+            switch (format) {
+                case 'exr':
+                    // EXR has some overhead for headers and metadata
+                    formatMultiplier = 1.05;
+                    formatNotes = 'Includes EXR header and metadata overhead';
+                    break;
+                case 'tiff':
+                    // TIFF has directory structure overhead
+                    formatMultiplier = 1.02;
+                    formatNotes = 'Includes TIFF directory structure overhead';
+                    break;
+                case 'dpx':
+                    // DPX has fixed header size
+                    const dpxHeaderSize = 8192; // bytes
+                    formatMultiplier = (compressedBytes + dpxHeaderSize) / compressedBytes;
+                    formatNotes = 'Includes DPX 8KB header overhead';
+                    break;
+            }
+
+            const finalBytes = compressedBytes * formatMultiplier;
+            const finalBits = finalBytes * 8;
+
+            // Calculate various metrics
+            const megapixels = (totalPixels / 1000000).toFixed(2);
+            const aspectRatio = (width / height).toFixed(3);
+
+            // Display results
+            const resultContent = document.getElementById('resultContent');
+            resultContent.innerHTML = `
+                <div class="result-item">
+                    <span class="result-label">Image Dimensions</span>
+                    <span class="result-value">${width} × ${height} pixels</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Megapixels</span>
+                    <span class="result-value">${megapixels} MP</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Aspect Ratio</span>
+                    <span class="result-value">${aspectRatio}:1</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Bits per Pixel</span>
+                    <span class="result-value">${bitsPerPixel} bits</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Uncompressed Size</span>
+                    <span class="result-value">${formatBytes(uncompressedBytes)}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Compressed Size</span>
+                    <span class="result-value">${formatBytes(compressedBytes)}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Final ${format.toUpperCase()} Size</span>
+                    <span class="result-value">${formatBytes(finalBytes)}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Bitrate per Frame</span>
+                    <span class="result-value">${formatBits(finalBits)}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Compression Ratio</span>
+                    <span class="result-value">${(compressionRatio * 100).toFixed(0)}% of original</span>
+                </div>
+                ${formatNotes ? `<div class="result-item"><span class="result-label">Format Notes</span><span class="result-value">${formatNotes}</span></div>` : ''}
+            `;
+
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Update bit depth options based on format
+        document.getElementById('format').addEventListener('change', function() {
+            const format = this.value;
+            const bitDepthSelect = document.getElementById('bitDepth');
+            const compressionSelect = document.getElementById('compression');
+            
+            // Clear and rebuild bit depth options
+            bitDepthSelect.innerHTML = '';
+            compressionSelect.innerHTML = '';
+
+            switch (format) {
+                case 'exr':
+                    bitDepthSelect.innerHTML = `
+                        <option value="16">16-bit Half Float</option>
+                        <option value="32">32-bit Float</option>
+                    `;
+                    compressionSelect.innerHTML = `
+                        <option value="none">Uncompressed</option>
+                        <option value="zip">ZIP Compression (~50%)</option>
+                        <option value="piz">PIZ Compression (~60%)</option>
+                        <option value="rle">RLE Compression (~30%)</option>
+                    `;
+                    break;
+                case 'tiff':
+                    bitDepthSelect.innerHTML = `
+                        <option value="8">8-bit</option>
+                        <option value="16">16-bit</option>
+                        <option value="32">32-bit Float</option>
+                    `;
+                    compressionSelect.innerHTML = `
+                        <option value="none">Uncompressed</option>
+                        <option value="lzw">LZW Compression (~40%)</option>
+                        <option value="zip">ZIP Compression (~50%)</option>
+                    `;
+                    break;
+                case 'dpx':
+                    bitDepthSelect.innerHTML = `
+                        <option value="8">8-bit</option>
+                        <option value="10">10-bit</option>
+                        <option value="12">12-bit</option>
+                        <option value="16">16-bit</option>
+                    `;
+                    compressionSelect.innerHTML = `
+                        <option value="none">Uncompressed (Standard)</option>
+                    `;
+                    break;
+            }
+        });
+
+        // Initialize with default format options
+        document.getElementById('format').dispatchEvent(new Event('change'));
+
+        // Add keyboard shortcut for calculation
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'Enter') {
+                calculateBitrate();
+            }
+        });
+    </script>
+</body>
+</html>
