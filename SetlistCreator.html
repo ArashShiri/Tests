@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Setlist Importer</title>
+    <meta name="disguise-plugin-window-size" content="500,750">
+    <meta name="disguise-plugin-window-min-size" content="300,400">
+    <meta name="disguise-plugin-window-resizable" content="true">
+    
+    <style>
+        body { 
+            background: #1e1e1e; 
+            color: #eee; 
+            font-family: 'Segoe UI', sans-serif; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+        }
+        h3 {
+            margin: 0 0 5px 0;
+            color: #D1C4E9;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+        textarea { 
+            background: #121212; 
+            color: #B388FF; 
+            border: 1px solid #4527A0; 
+            padding: 12px; 
+            height: 350px; 
+            font-family: monospace; 
+            resize: vertical; 
+            border-radius: 4px;
+            outline: none;
+        }
+        textarea:focus { border-color: #7C4DFF; }
+        
+        button { 
+            background: #6200EA; 
+            color: white; 
+            border: none; 
+            padding: 14px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            border-radius: 4px; 
+            transition: background 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        button:hover { background: #7C4DFF; }
+        
+        input { 
+            background: #121212; 
+            color: white; 
+            border: 1px solid #333; 
+            padding: 10px; 
+            width: 100%; 
+            box-sizing: border-box; 
+            border-radius: 4px;
+        }
+        
+        #log { 
+            background: #000; 
+            padding: 12px; 
+            border: 1px solid #333; 
+            min-height: 120px; 
+            white-space: pre-wrap; 
+            font-family: monospace; 
+            color: #999; 
+            font-size: 0.85em; 
+            border-radius: 4px;
+        }
+        .hint { font-size: 0.8em; color: #888; margin-bottom: 5px; }
+        .section { background: #252525; padding: 15px; border-radius: 6px; }
+        label { display: block; margin-bottom: 5px; color: #aaa; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+
+    <h3>Setlist Importer</h3>
+    
+    <div class="section">
+        <div class="hint"><b>Format:</b> Left = SetList, Indented = Track</div>
+        <textarea id="inputText" placeholder="Setlist One&#10;   Intro&#10;   Song A&#10;Setlist Two&#10;   Song B"></textarea>
+    </div>
+
+    <div class="section">
+        <label>Template Track (Optional)</label>
+        <input type="text" id="templateName" value="" placeholder="Leave empty for blank tracks">
+    </div>
+    
+    <button onclick="runImport()">Generate Show</button>
+    
+    <div id="log">Ready.</div>
+
+    <script>
+        async function runImport() {
+            const rawInput = document.getElementById('inputText').value;
+            const template = document.getElementById('templateName').value;
+            const logDiv = document.getElementById('log');
+            
+            const director = new URLSearchParams(window.location.search).get('director') || "localhost";
+            let apiUrl = "/api/session/python/execute";
+            if (!window.location.protocol.startsWith('http')) {
+                apiUrl = `http://${director}/api/session/python/execute`;
+            }
+
+            const safeInput = JSON.stringify(rawInput);
+            const pythonScript = `
+import d3
+import traceback
+import time
+
+logs = []
+
+def get_mgr():
+    if hasattr(d3, 'resourceManager'): return d3.resourceManager
+    if 'resourceManager' in globals(): return resourceManager
+    return None
+
+def sanitize(name):
+    return "".join([c for c in name if c.isalpha() or c.isdigit() or c in ' _-']).strip()
+
+def get_resources(type_obj):
+    mgr = get_mgr()
+    return {r.path.filename: r for r in mgr.allResources(type_obj)}
+
+def create_track(name, template_track=None):
+    mgr = get_mgr()
+    path = "objects/Track/" + name + ".apx"
+    
+    if template_track:
+        template_track.duplicate(name)
+        all_tracks = mgr.allResources(d3.Track)
+        for t in all_tracks:
+            if t.path.filename == name: return t
+    else:
+        track = mgr.loadOrCreate(path, d3.Track)
+        return track
+
+def create_setlist(name):
+    mgr = get_mgr()
+    path = "objects/SetList/" + name + ".apx"
+    TypeToMake = getattr(d3, 'UserSetList', d3.SetList)
+    sl = mgr.loadOrCreate(path, TypeToMake)
+    return sl
+
+try:
+    mgr = get_mgr()
+    template_name = "${template}"
+    
+    if not mgr:
+        logs.append("Error: ResourceManager not found.")
+    else:
+        # Template
+        template_track = None
+        if template_name:
+            all_tracks = get_resources(d3.Track)
+            template_track = all_tracks.get(template_name)
+
+        # Parse Data
+        raw_text = ${safeInput}
+        lines = raw_text.split('\\n')
+        
+        show_structure = [] 
+        current_sl = None
+        current_tracks = []
+        
+        for line in lines:
+            stripped = line.strip()
+            if not stripped: continue
+            
+            is_track = (len(line) - len(line.lstrip())) > 0
+            safe_name = sanitize(stripped)
+            if not safe_name: continue
+
+            if not is_track:
+                if current_sl: show_structure.append((current_sl, current_tracks))
+                current_sl = safe_name
+                current_tracks = []
+            else:
+                if current_sl: current_tracks.append(safe_name)
+        
+        if current_sl: show_structure.append((current_sl, current_tracks))
+
+        # Switch context to avoid GUI locking
+        try:
+            all_setlists = get_resources(d3.SetList)
+            for sl in all_setlists.values():
+                if "Automatic" in str(type(sl)):
+                    d3.state.currentSetList = sl
+                    break
+        except: pass
+
+        # 1. Create SetLists
+        logs.append("Processing SetLists...")
+        setlist_objects = {}
+        all_setlists = get_resources(d3.SetList)
+        
+        for sl_name, _ in show_structure:
+            existing = all_setlists.get(sl_name)
+            
+            # Legacy cleanup
+            if existing and "UserSetList" not in str(type(existing)):
+                existing.name = sl_name + "_trash_" + str(int(time.time()))
+                existing = None 
+            
+            if not existing:
+                sl = create_setlist(sl_name)
+                setlist_objects[sl_name] = sl
+                logs.append("Created List: " + sl_name)
+            else:
+                setlist_objects[sl_name] = existing
+
+        # 2. Create Tracks
+        logs.append("Processing Tracks...")
+        track_objects = {}
+        all_tracks = get_resources(d3.Track)
+        
+        for _, t_list in show_structure:
+            for t_name in t_list:
+                if t_name in track_objects: continue
+                
+                t = all_tracks.get(t_name)
+                if not t:
+                    try:
+                        t = create_track(t_name, template_track)
+                    except Exception as e:
+                        logs.append("Error creating " + t_name)
+                
+                if t: track_objects[t_name] = t
+
+        # 3. Connect
+        logs.append("Linking Tracks...")
+        
+        for sl_name, t_list in show_structure:
+            sl = setlist_objects.get(sl_name)
+            if not sl: continue
+            
+            count = 0
+            for t_name in t_list:
+                t = track_objects.get(t_name)
+                if not t: continue
+                
+                try:
+                    exists = False
+                    for existing in sl.tracks:
+                        if existing == t: 
+                            exists = True
+                            break
+                    
+                    if not exists:
+                        if hasattr(d3, 'markDirty'): d3.markDirty(sl)
+                        sl.tracks.append(t)
+                        count += 1
+                except: pass
+            
+            if count > 0:
+                logs.append(sl_name + ": Added " + str(count))
+
+except Exception:
+    logs.append(traceback.format_exc())
+
+print("\\n".join(logs))
+`;
+
+            // Init
+            logDiv.innerText = "Initializing...";
+            try {
+                await fetch(apiUrl, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ script: pythonScript }) });
+            } catch(e) {}
+
+            await new Promise(r => setTimeout(r, 600));
+
+            // Execute
+            logDiv.innerText = "Processing...";
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ script: pythonScript })
+                });
+
+                if (!response.ok) throw new Error("HTTP " + response.status);
+                const result = await response.json();
+                
+                if (result && result.result) logDiv.innerText = result.result;
+                else logDiv.innerText = "Complete.";
+                
+            } catch (err) {
+                logDiv.innerText = "Error: " + err.message;
+            }
+        }
+    </script>
+</body>
+</html>
