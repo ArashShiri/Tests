@@ -46,7 +46,29 @@ import xml.etree.ElementTree as ET
 import uuid
 import argparse
 import os
+import unicodedata
+import re
 from datetime import datetime
+
+def sanitize_input(text):
+    """
+    Sanitizes the input text by:
+    1. Normalizing unicode characters (e.g., Å -> A, Ü -> U)
+    2. Removing any characters that are not alphanumeric, underscore, or hyphen.
+    """
+    if not text:
+        return ""
+    
+    # Normalize unicode characters to decompose combined characters
+    normalized = unicodedata.normalize('NFKD', text)
+    
+    # Encode to ASCII bytes, ignoring non-ASCII characters, then decode back to string
+    ascii_text = normalized.encode('ASCII', 'ignore').decode('ASCII')
+    
+    # Replace any character that is not a-z, A-Z, 0-9, _, or - with nothing
+    sanitized = re.sub(r'[^a-zA-Z0-9_-]', '', ascii_text)
+    
+    return sanitized
 
 def create_xml(trackname, filename, tc_start, tc_end):
     def timecode_to_absolute(tc):
@@ -121,8 +143,9 @@ def generate_xml_from_csv(csv_file, output_file):
 
         # Iterate over rows and create XML blocks
         for row in reader:
-            trackname = row["Trackname"]
-            filename = row["Filename"]
+            # Sanitize inputs
+            trackname = sanitize_input(row["Trackname"])
+            filename = sanitize_input(row["Filename"])
             tc_start = row["TC start"]
             tc_end = row["TC end"]
 
